@@ -40,7 +40,8 @@ class Application(tornado.web.Application):
 class PokerRequestHandler(tornado.web.RequestHandler):
 
     def get(self):
-        self.render("index.html", config=global_game_manager, registered=False)
+        suits = [("S", "spade"), ("D", "diamond"), ("H", "heart"), ("C", "club")]
+        self.render("index.html", config=global_game_manager, registered=False, suits=suits)
 
 class PokerWebSocketHandler(tornado.websocket.WebSocketHandler):
 
