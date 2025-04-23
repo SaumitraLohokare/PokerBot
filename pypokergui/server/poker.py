@@ -143,7 +143,7 @@ def start_server(config_path, port, speed):
     setup_config(config)
     MODE_SPEED = speed
     app = Application()
-    app.listen(port, address="0.0.0.0")
+    app.listen(port)
     tornado.ioloop.IOLoop.current().start()
 
 def main():

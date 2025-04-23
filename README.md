@@ -157,3 +157,8 @@ python -m pypokergui serve ./poker_conf.yaml --port 8000 --speed slow
 ```
 
 If you need to modify server settings, you can edit the `poker_conf.yaml` file or update the parameters in `start-poker.sh`.
+
+
+If running on local machine, run python -m pypokergui serve ./poker_conf.yaml --port 8000 --speed slow
+Change the 8000 to a different port (eg 8100) if there is a port error
+--speed [slow/moderate/fast/dev]
