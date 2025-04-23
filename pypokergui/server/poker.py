@@ -59,6 +59,10 @@ class PokerWebSocketHandler(tornado.websocket.WebSocketHandler):
         if global_game_manager.get_human_player_info(self.uuid):
             global_game_manager.remove_human_player_info(self.uuid)
             MM.broadcast_config_update(self, global_game_manager, self.sockets)
+    
+    def on_connection_close(self):
+        print(f"Connection closed: {self.uuid}")
+
 
     def on_message(self, message):
         js = tornado.escape.json_decode(message)
@@ -139,7 +143,7 @@ def start_server(config_path, port, speed):
     setup_config(config)
     MODE_SPEED = speed
     app = Application()
-    app.listen(port)
+    app.listen(port, address="0.0.0.0")
     tornado.ioloop.IOLoop.current().start()
 
 def main():
