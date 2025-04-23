@@ -40,8 +40,7 @@ class Application(tornado.web.Application):
 class PokerRequestHandler(tornado.web.RequestHandler):
 
     def get(self):
-        suits = [("S", "spade"), ("D", "diamond"), ("H", "heart"), ("C", "club")]
-        self.render("index.html", config=global_game_manager, registered=False, suits=suits)
+        self.render("index.html", config=global_game_manager, registered=False)
 
 class PokerWebSocketHandler(tornado.websocket.WebSocketHandler):
 
@@ -134,8 +133,9 @@ def setup_config(config):
 
 def start_server(config_path, port, speed):
     global MODE_SPEED
+    print(config_path)
     with open(config_path, "rb") as f:
-        config = yaml.load(f)
+        config = yaml.load(f, Loader=yaml.SafeLoader)
     setup_config(config)
     MODE_SPEED = speed
     app = Application()
