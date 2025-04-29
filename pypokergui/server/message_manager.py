@@ -99,6 +99,11 @@ def _find_socket_by_uuid(sockets, uuid):
 
 def _gen_game_update_message(handler, message):
     message_type = message['message']['message_type']
+    hole = False
+    if('hole_card' in message['message'].keys()):
+        hole = message['message']['hole_card']
+        print(hole)
+        
     if 'round_start_message' == message_type:
         round_count = message['message']['round_count']
         hole_card = message['message']['hole_card']
@@ -134,8 +139,6 @@ def _gen_game_update_message(handler, message):
     elif 'round_result_message' == message_type:
         #print(repr(message['message'].items()))
         # Here, add additional field to hand_info to indicate which card to display (suit, rank)
-        print(message['message'].keys())
-        assert(1 == 0)
         round_state = message['message']['round_state']
         hand_info = message['message']['hand_info']
         winners = message['message']['winners']
@@ -179,6 +182,9 @@ def _gen_game_update_message(handler, message):
 
 def _broadcast_message_to_ai(ai_player, message):
     message_type = message['message']['message_type']
+    hole = False
+    if('hole_card' in message['message'].keys()):
+        hole = message['message']['hole_card']
     if 'round_start_message' == message_type:
         round_count = message['message']['round_count']
         hole_card = message['message']['hole_card']
@@ -196,6 +202,8 @@ def _broadcast_message_to_ai(ai_player, message):
         winners = message['message']['winners']
         round_state = message['message']['round_state']
         hand_info = message['message']['hand_info']
+        if (hole):
+            print(hole)
         ai_player.receive_round_result_message(winners, hand_info, round_state)
     elif 'game_result_message' == message_type:
         pass  # ai does not handle game result
