@@ -102,6 +102,7 @@ def _gen_game_update_message(handler, message):
     if 'round_start_message' == message_type:
         round_count = message['message']['round_count']
         hole_card = message['message']['hole_card']
+        print(hole_card)
         event_html_str = handler.render_string("event_round_start.html",
                 round_count=round_count, hole_card=hole_card)
         content = {
@@ -131,6 +132,10 @@ def _gen_game_update_message(handler, message):
                 'event_html': tornado.escape.to_basestring(event_html_str)
                 }
     elif 'round_result_message' == message_type:
+        #print(repr(message['message'].items()))
+        # Here, add additional field to hand_info to indicate which card to display (suit, rank)
+        print(message['message'].keys())
+        assert(1 == 0)
         round_state = message['message']['round_state']
         hand_info = message['message']['hand_info']
         winners = message['message']['winners']

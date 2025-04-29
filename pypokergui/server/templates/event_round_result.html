@@ -1,5 +1,5 @@
-{% extends "base_event.html" %} {% block event_title %}Round Result{% end %} {%
-block event_content %}
+{% extends "base_event.html" %} {% block event_title %}Round Result{% end %} 
+{% block event_content %}
 <div id="round_result">
   <h4>Winner => {{ ",".join([player['name'] for player in winners]) }}</h4>
   <table class="table table-bordered">
@@ -15,14 +15,44 @@ block event_content %}
       {% for hand in hand_info %}
       <tr>
         <td>
-          {{ [player['name'] for player in round_state['seats'] if
-          player['uuid']==hand['uuid']][0] }}
+          {{ [player['name'] for player in round_state['seats'] if player['uuid']==hand['uuid']][0] }}
         </td>
         <td>{{ hand['hand']['hand']['strength'] }}</td>
-        <td>{{ hand['hand']['hole']['high'] }}</td>
-        <td>{{ hand['hand']['hole']['low'] }}</td>
+
+        <!-- Logging hand hole cards with JSON hack -->
+        <script>
+          const out = JSON.parse(`{{ hand['hand']['hole']}}`);
+          console.log('Hand hole cards:', out);
+        </script>
+
+        <!-- hole-high -->
+        <td>
+          {% set card = hand['hand']['hole']['high'] %}
+          {% set suit_map = {"S":"spade", "H":"heart", "D":"diamond", "C":"club"} %}
+          {% set suit = card %}
+          {% set rank = card %}
+          <p>{{ hand }}</p>
+          <img
+            class="card"
+            src="{{ static_url('images/' + repr(hand) + '/' + str(rank) + '.png') }}"
+            style="height: 50px"
+          />
+        </td>
+
+        <!-- hole-low -->
+        <td>
+          {% set card = hand['hand']['hole']['low'] %}
+          {% set suit = card %}
+          {% set rank = card %}
+          <img
+            class="card"
+            src="{{ static_url('images/' + str(suit) + '/' + str(rank) + '.png') }}"
+            style="height: 50px"
+          />
+        </td>
       </tr>
       {% end %}
+
     </tbody>
   </table>
 </div>
