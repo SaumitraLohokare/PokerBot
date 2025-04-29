@@ -12,6 +12,8 @@ class GameManager(object):
         self.latest_messages = []
         self.next_player_uuid = None
 
+        self.hole_cards = {}
+
     def define_rule(self, max_round, initial_stack, small_blind, ante, blind_structure):
         self.rule = Engine.gen_game_config(max_round, initial_stack, small_blind, ante, blind_structure)
 
@@ -58,6 +60,14 @@ class GameManager(object):
                 ask_message['message']['hole_card'],
                 ask_message['message']['round_state']
         )
+    def reset_hole_record(self):
+        self.hole_cards = {}
+        return
+
+    def record_hole_card(self, uuid, hole_cards):
+        if(uuid not in self.hole_cards.keys()):
+            self.hole_cards[uuid] = hole_cards
+        return
 
 def fetch_next_player_uuid(new_messages):
     if not has_game_finished(new_messages):
@@ -96,4 +106,5 @@ def _gen_base_player_info(player_type, name, uuid):
             "name": name,
             "uuid": uuid
             }
+
 

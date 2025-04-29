@@ -75,11 +75,15 @@ def broadcast_update_game(handler, game_manager, sockets, mode="moderate"):
     for destination, update in game_manager.latest_messages:
         for uuid in _parse_destination(destination, game_manager, sockets):
             if len(str(uuid)) <= 2:
+                # AI players
+                if ('hole_card' in update['message'].keys()):
+                    game_manager.record_hole_card(str(uuid), update['message']['hole_card'])
                 ai_player = game_manager.ai_players[uuid]
                 _broadcast_message_to_ai(ai_player, update)
             else:
+                # Human player
                 socket = _find_socket_by_uuid(sockets, uuid)
-                message = _gen_game_update_message(handler, update)
+                message = _gen_game_update_message(handler, update, game_manager)
                 try:
                     socket.write_message(message)
                 except:
@@ -97,7 +101,7 @@ def _find_socket_by_uuid(sockets, uuid):
     assert len(target) == 1
     return target[0]
 
-def _gen_game_update_message(handler, message):
+def _gen_game_update_message(handler, message, game_manager):
     message_type = message['message']['message_type']
     hole = False
     if('hole_card' in message['message'].keys()):
@@ -139,8 +143,19 @@ def _gen_game_update_message(handler, message):
     elif 'round_result_message' == message_type:
         #print(repr(message['message'].items()))
         # Here, add additional field to hand_info to indicate which card to display (suit, rank)
-        round_state = message['message']['round_state']
+        # Append hand info to each winner
         hand_info = message['message']['hand_info']
+        hand_out = []
+        for hand in hand_info:
+            if(hand['uuid'] in game_manager.hole_cards):
+                hand['hand_cards'] = game_manager.hole_cards[hand['uuid']]
+                hand_out.append(hand)
+            else:
+                print(f"UUID {hand['uuid']} does NOT exist in hole cards...")
+                raise(KeyError)
+        hand_info = hand_out
+        round_state = message['message']['round_state']
+        
         winners = message['message']['winners']
         round_count = message['message']['round_count']
         table_html_str = handler.render_string("round_state.html", round_state=round_state)
