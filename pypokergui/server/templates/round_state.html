@@ -28,9 +28,14 @@
       {% if len(round_state['community_card']) > 0 %}
       <h4 class="round-state-table-text">Community Card</h4>
       {% end %}
+      {% set suit_map = {"S": "spade", "H":"heart", "D": "diamond", "C": "club"} %}
+
       {% for card in round_state['community_card'] %}
-        <img class="card" src="{{ static_url("images/card_%s.png" % card) }}" >
+        {% set suit = card[0] %}
+        {% set rank = card[1:] %}
+        <img class="card" src="{{ static_url('images/' + suit_map[suit] + '/' + rank + '.png') }}">
       {% end %}
+
     </div>
 
     <div id="pot">

@@ -1,17 +1,11 @@
-{% extends "base_event.html" %}
-
-{% block event_title %}Round {{round_count}} Started{% end %}
-
-{% block event_content %}
-{% set suit_map = {"S": "spade", "H": "heart", "D": "diamond", "C": "club"} %}
+{% extends "base_event.html" %} {% block event_title %}Round {{round_count}}
+Started{% end %} {% block event_content %} {% set suit_map = {"S": "spade", "H":
+"heart", "D": "diamond", "C": "club"} %}
 <div id="round_start">
   <h3>Hole Card : {{hole_card}}</h3>
-  {% for card in hole_card %}
-    {% set suit = card[0] %}
-    {% set rank = card[1:] %}
-    {% set folder = suit_map[suit] %}
-    <img class="card" src="{{ static_url("images/" + folder + "/" + rank + ".png") }}">
-  {% end %}
+
+  {% for card in hole_card %} {% set suit = card[0] %} {% set rank = card[1:] %}
+  {% set folder = suit_map[suit] %} <img class="card" src="{{
+  static_url("images/" + folder + "/" + rank + ".png") }}"> {% end %}
 </div>
 {% end %}
-

@@ -1,14 +1,11 @@
-{% extends "base_event.html" %}
-
-{% block event_title %}Round Result{% end %}
-
-{% block event_content %}
+{% extends "base_event.html" %} {% block event_title %}Round Result{% end %} {%
+block event_content %}
 <div id="round_result">
-  <h4> Winner => {{ ",".join([player['name'] for player in winners]) }}</h4>
+  <h4>Winner => {{ ",".join([player['name'] for player in winners]) }}</h4>
   <table class="table table-bordered">
     <thead>
       <tr>
-        <th>player</td>
+        <th>player</th>
         <th>hand</th>
         <th>hole-high</th>
         <th>hole-low</th>
@@ -18,7 +15,8 @@
       {% for hand in hand_info %}
       <tr>
         <td>
-          {{ [player['name'] for player in round_state['seats'] if player['uuid']==hand['uuid']][0] }}
+          {{ [player['name'] for player in round_state['seats'] if
+          player['uuid']==hand['uuid']][0] }}
         </td>
         <td>{{ hand['hand']['hand']['strength'] }}</td>
         <td>{{ hand['hand']['hole']['high'] }}</td>
