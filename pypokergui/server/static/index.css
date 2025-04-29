@@ -2,10 +2,12 @@
  * Base structure
  */
 
-/* Move down content because we have a fixed navbar that is 50px tall */
-body {
+ body {
   padding-top: 50px;
   padding-bottom: 50px;
+  background-color: #1b1b1b; /* dark poker-table style */
+  color: #f0f0f0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 
@@ -13,50 +15,101 @@ body {
  * Global add-ons
  */
 
+/* Styling for the sub-header */
 .sub-header {
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  font-size: 2.5rem; /* Larger sub-header */
+  color: #FFD700; /* Gold color */
+  text-align: center; /* Center the text */
+  margin-bottom: 20px; /* Space below the header */
 }
+
+/* Styling for the winner names inside h4 */
+.winner-name {
+  font-size: 2rem; /* Larger text size */
+  font-weight: bold; /* Make text bold */
+  color: #FFD700; /* Gold color */
+  text-align: center; /* Center the text */
+  margin: 10px 0; /* Add spacing between names */
+  line-height: 1.5; /* Increase line height to prevent overlapping */
+}
+
 
 /*
  * Top navigation
- * Hide default border to remove 1px line.
  */
 .navbar-fixed-top {
   border: 0;
+  background-color: #2c2c2c;
+  color: #fff;
 }
 
-.row-center{
-  text-align:center;
-  letter-spacing:-0.4em;
-  }
-  .row-center > [class*='col-'] {
-  display:inline-block;
-  letter-spacing:0;
-  vertical-align:top;
-  float:none !important;
+.row-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px; /* Adjust this value for more or less spacing */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  text-align: center;
 }
+
+
 
 /*
-* For product stuff
-*/
+ * Card styles (for players, hands, etc.)
+ */
 
 .card {
-  width: 15%
+  width: 20%;
+  background-color: #388E3C;
+  border-radius: 10px;
+  padding: 10px;
+  color: #fff;
+  border: 1px solid #ccc;
+}
+.card:hover {
+  transform: scale(1.05);
 }
 
+.card-text {
+  font-size: 2rem; /* Make the text larger */
+  font-weight: bold; /* Make the text bold */
+  color: #FFD700; /* Gold color for visibility */
+  text-align: center; /* Center the text */
+  margin: 10px 0; /* Add some spacing between the items */
+  padding: 10px; /* Add some padding for better readability */
+  background-color: #2c2c2c; /* Background color to make text stand out */
+  border-radius: 8px; /* Rounded corners for a cleaner look */
+}
 .card-small {
-  width: 20%
+  width: 20%;
+  background-color: #388E3C;
+  border-radius: 10px;
+  padding: 10px;
+  color: #fff;
+  border: 1px solid #ccc;
 }
 
 .pot {
-  width: 10%
+  width: 100%;
+  background-color: #2e2e2e; /* Dark charcoal background */
+  padding: 40px;
+  border-radius: 10%;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #FFD700; /* Gold text for strong contrast */
+  border: 3px solid #444; /* Subtle dark border */
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); /* Soft gold glow */
+  margin: 15px 0; /* Space above and below */
 }
 
+
 .info-box {
-  background-color: #f9f9f9;
-  padding: 10px;
+  background-color: #333;
+  padding: 15px;
   margin-top: 50px;
+  color: #ccc;
+  border-left: 4px solidrgb(0, 0, 0);
 }
 
 #event_content {
@@ -65,39 +118,69 @@ body {
 
 #round-state-table {
   margin-top: 30px;
-  padding: 10px;
-  background-color: #2E7D32;
+  padding: 20px;
+  background-color: #43A047;
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: nowrap; /* Prevent wrapping */
+  justify-content: flex-end; /* Align children to the right so it expands left */
+  align-items: center;
+  width: auto; /* Let it grow based on content */
+  height: auto;
+  margin-left: auto; /* Push container to the right */
+  min-height: 200px; /* Adjust this value as needed */
 }
+
+
 
 .round-state-table-text {
   color: #ffffff;
+  font-weight: bold;
+  font-size: 3rem; /* Increase the font size for better visibility */
 }
 
 
-/*
-* For Google Icon Font
-*/
+.hand-player-name {
+  font-size: 3rem; /* Adjust this value as needed */
+  font-weight: bold;
+  color: #FFD700; /* Optional: gold color for visibility */
+}
 
-/* option class for icon size*/
+/* Apply custom font colors to odd rows */
+.table-striped tbody tr:nth-child(odd) {
+  background-color:rgb(236, 236, 236); /* Light gray for odd rows */
+  color: #000000; /* Custom font color for odd rows (black) */
+}
+
+/* Apply custom font colors to even rows */
+.table-striped tbody tr:nth-child(even) {
+  background-color:rgb(34, 34, 34); /* Darker gray for even rows */
+  color: #ffffff; /* Custom font color for even rows (white) */
+}
+
+/*
+ * Google Icon Font Colors (customized)
+ */
+
 .material-icons.md-18 { font-size: 18px; }
 .material-icons.md-24 { font-size: 24px; }
 .material-icons.md-36 { font-size: 36px; }
 .material-icons.md-48 { font-size: 48px; }
 
-/* option class for icon color */
-.material-icons.color-ai { color: #E8F5E9; }
-.material-icons.color-ai.inactive { color: #212121; }
+.material-icons.color-ai { color: #A5D6A7; }
+.material-icons.color-ai.inactive { color: #555; }
 .material-icons.color-ai.dark { color: #43A047; }
-.material-icons.color-ai.dark.inactive { color: #212121; }
-.material-icons.color-human { color: #FAFAFA; }
-.material-icons.color-human.inactive { color: #212121; }
-.material-icons.color-human.dark { color: #757575; }
-.material-icons.color-human.dark.inactive { color: #212121; }
+.material-icons.color-ai.dark.inactive { color: #333; }
+
+.material-icons.color-human { color: #FFE082; }
+.material-icons.color-human.inactive { color: #666; }
+.material-icons.color-human.dark { color: #FFB300; }
+.material-icons.color-human.dark.inactive { color: #444; }
 
 .material-icons.orange600 { color: #FB8C00; }
- 
-.material-icons.md-dark { color: rgba(0, 0, 0, 1.0); }
-.material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
- 
+
+.material-icons.md-dark { color: rgba(255, 255, 255, 1.0); }
+.material-icons.md-dark.md-inactive { color: rgba(255, 255, 255, 0.4); }
+
 .material-icons.md-light { color: rgba(255, 255, 255, 1); }
 .material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }

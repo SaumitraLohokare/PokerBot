@@ -1,8 +1,19 @@
 {% extends "base_event.html" %} {% block event_title %}Round Result{% end %} 
 {% block event_content %}
 <div id="round_result">
-  <h4>Winner => {{ ",".join([player['name'] for player in winners]) }}</h4>
-  <table class="table table-bordered">
+  <h4 class="sub-header">
+    🏆 Winners: 
+    <span class="winner-names">
+      {% for player in winners %}
+        {{ player['name'] }}
+      {% end %}
+    </span>
+  </h4>
+  
+
+
+
+    <table class="table table-bordered">
     <thead>
       <tr>
         <th>player</th>
@@ -14,12 +25,11 @@
     <tbody>
       {% for hand in hand_info %}
       <tr>
-        <td>
-          {{ [player['name'] for player in round_state['seats'] if player['uuid']==hand['uuid']][0] }}
+        <td class="hand-player-name">
+          {{ [player['name'] for player in round_state['seats'] if player['uuid'] == hand['uuid']][0] }}
         </td>
+        
 
-
-    
         <!-- card 1 -->
         <td>
           {% set card1 = hand['hand_cards'][0] %}

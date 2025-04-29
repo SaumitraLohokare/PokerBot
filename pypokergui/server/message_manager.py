@@ -155,6 +155,18 @@ def _gen_game_update_message(handler, message, game_manager):
                 # Fix spelling errors
                 if (hand['hand']['hand']['strength'] == 'FLASH'):
                     hand['hand']['hand']['strength'] = 'FLUSH'
+
+                if (hand['hand']['hand']['strength'] == 'THREECARD'):
+                    hand['hand']['hand']['strength'] = 'THREE OF A KIND'
+
+                if (hand['hand']['hand']['strength'] == 'ONEPAIR'):
+                    hand['hand']['hand']['strength'] = 'PAIR'
+
+                if (hand['hand']['hand']['strength'] == 'TWOPAIR'):
+                    hand['hand']['hand']['strength'] = 'TWO PAIR'
+
+                if (hand['hand']['hand']['strength'] == 'HIGHCARD'):
+                    hand['hand']['hand']['strength'] = 'HIGH CARD'
                 hand_out.append(hand)
             else:
                 print(f"UUID {hand['uuid']} does NOT exist in hole cards...")
@@ -173,6 +185,8 @@ def _gen_game_update_message(handler, message, game_manager):
                 'table_html': tornado.escape.to_basestring(table_html_str),
                 'event_html': tornado.escape.to_basestring(event_html_str)
                 }
+        # Reset hands
+        game_manager.reset_hole_record()
     elif 'game_result_message' == message_type:
         game_info = message['message']['game_information']
         event_html_str = handler.render_string("event_game_result.html", game_information=game_info)
