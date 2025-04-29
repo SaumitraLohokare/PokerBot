@@ -74,10 +74,11 @@ def _gen_start_game_message(handler, game_manager, uuid):
 def broadcast_update_game(handler, game_manager, sockets, mode="moderate"):
     for destination, update in game_manager.latest_messages:
         for uuid in _parse_destination(destination, game_manager, sockets):
+            if ('hole_card' in update['message'].keys()):
+                    game_manager.record_hole_card(str(uuid), update['message']['hole_card'])
             if len(str(uuid)) <= 2:
                 # AI players
-                if ('hole_card' in update['message'].keys()):
-                    game_manager.record_hole_card(str(uuid), update['message']['hole_card'])
+                
                 ai_player = game_manager.ai_players[uuid]
                 _broadcast_message_to_ai(ai_player, update)
             else:
@@ -147,13 +148,19 @@ def _gen_game_update_message(handler, message, game_manager):
         hand_info = message['message']['hand_info']
         hand_out = []
         for hand in hand_info:
+            print(hand['hand']['hand']['strength'])
             if(hand['uuid'] in game_manager.hole_cards):
                 hand['hand_cards'] = game_manager.hole_cards[hand['uuid']]
+
+                # Fix spelling errors
+                if (hand['hand']['hand']['strength'] == 'FLASH'):
+                    hand['hand']['hand']['strength'] = 'FLUSH'
                 hand_out.append(hand)
             else:
                 print(f"UUID {hand['uuid']} does NOT exist in hole cards...")
                 raise(KeyError)
         hand_info = hand_out
+        print(hand_info)
         round_state = message['message']['round_state']
         
         winners = message['message']['winners']
@@ -263,6 +270,6 @@ FAST_WAIT_INTERVAL = {
         'street_start_message': 0.5,
         'ask_message': 0,
         'game_update_message': 0.5,
-        'round_result_message': 3,
+        'round_result_message': 15,
         'game_result_message': 0
 }

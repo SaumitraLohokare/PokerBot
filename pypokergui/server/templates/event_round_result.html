@@ -6,9 +6,9 @@
     <thead>
       <tr>
         <th>player</th>
-        <th>hand</th>
-        <th>hole-high</th>
-        <th>hole-low</th>
+        <th>card1</th>
+        <th>card2</th>
+        <th>Strength</th>
       </tr>
     </thead>
     <tbody>
@@ -17,39 +17,36 @@
         <td>
           {{ [player['name'] for player in round_state['seats'] if player['uuid']==hand['uuid']][0] }}
         </td>
-        <td>{{ hand['hand']['hand']['strength'] }}</td>
 
-        <!-- Logging hand hole cards with JSON hack -->
-        <script>
-          const out = JSON.parse(`{{ hand['hand']['hole']}}`);
-          console.log('Hand hole cards:', out);
-        </script>
 
-        <!-- hole-high -->
+    
+        <!-- card 1 -->
         <td>
-          {% set card = hand['hand']['hole']['high'] %}
+          {% set card1 = hand['hand_cards'][0] %}
           {% set suit_map = {"S":"spade", "H":"heart", "D":"diamond", "C":"club"} %}
-          {% set suit = card %}
-          {% set rank = card %}
-          <p>{{ hand }}</p>
+          {% set suit1 = card1[0] %}
+          {% set rank1 = card1[1] %}
           <img
             class="card"
-            src="{{ static_url('images/' + repr(hand) + '/' + str(rank) + '.png') }}"
-            style="height: 50px"
+            src="{{ static_url('images/' + suit_map[suit1] + '/' + rank1 + '.png') }}"
+            style="height: auto; width: 100%"
           />
         </td>
 
-        <!-- hole-low -->
+        <!-- card 2 -->
         <td>
-          {% set card = hand['hand']['hole']['low'] %}
-          {% set suit = card %}
-          {% set rank = card %}
+          {% set card2 = hand['hand_cards'][1] %}
+          {% set suit_map = {"S":"spade", "H":"heart", "D":"diamond", "C":"club"} %}
+          {% set suit2 = card2[0] %}
+          {% set rank2 = card2[1] %}
           <img
             class="card"
-            src="{{ static_url('images/' + str(suit) + '/' + str(rank) + '.png') }}"
-            style="height: 50px"
+            src="{{ static_url('images/' + suit_map[suit2] + '/' + rank2 + '.png') }}"
+            style="height: auto; width: 100%"
           />
         </td>
+
+        <td> {{hand['hand']['hand']['strength']}}</td>
       </tr>
       {% end %}
 
