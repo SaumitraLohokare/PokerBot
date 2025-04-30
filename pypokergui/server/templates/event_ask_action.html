@@ -12,16 +12,43 @@
     {% set folder = suit_map[suit] %}
     <img class="card" src="{{ static_url("images/" + folder + "/" + rank + ".png") }}">
   {% end %}
-  <h3>Valid Actions</h3>
   <ul class="list-group">
-    {% for action in valid_actions %}
-    <li class="list-group-item">
-      <span>{{action['action'].upper()}}</span>
-        :
-      <span>{{action['amount']}}</span>
+  {% for action in valid_actions %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <span>
+        {% if action['action'].lower() == 'call' %}
+          📞 Call
+        {% elif action['action'].lower() == 'fold' %}
+          ❌ Fold
+        {% elif action['action'].lower() == 'raise' %}
+          ⬆️ Raise
+        {% else %}
+          ❓ {{ action['action'].capitalize() }}
+        {% end %}
+      </span>
+      <span class="badge bg-primary rounded-pill">${{ action['amount'] }}</span>
     </li>
-    {% end %}
-  </ul>
+  {% end %}
+</ul>
   <span style="display:none">>Action History: {{action_histories }}</span>
 </div>
+
+<style>
+  .list-group-item {
+    font-size: 1.1rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    transition: background-color 0.3s;
+  }
+
+  .list-group-item:hover {
+    background-color: #e2e6ea;
+  }
+
+  .badge {
+    font-size: 1rem;
+    padding: 0.5em 0.75em;
+  }
+</style>
+
 {% end %}

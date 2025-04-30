@@ -3,16 +3,19 @@ import logging
 
 import tornado.escape
 
+
 def alert_server_restart(handler, uuid, sockets):
     soc = _find_socket_by_uuid(sockets, uuid)
     soc.write_message(_gen_alert_server_restart_message(handler))
 
+
 def _gen_alert_server_restart_message(handler):
     message = "Server has already run. Please restart the server to play the game again."
     return {
-            'message_type': 'alert_restart_server',
-            'message': message
-            }
+        'message_type': 'alert_restart_server',
+        'message': message
+    }
+
 
 def broadcast_config_update(handler, game_manager, sockets):
     for soc in sockets:
@@ -21,17 +24,19 @@ def broadcast_config_update(handler, game_manager, sockets):
         except:
             logging.error("Error sending message", exc_info=True)
 
+
 def _gen_config_update_message(handler, game_manager, uuid):
     registered = game_manager.get_human_player_info(uuid)
     html_str = handler.render_string(
-            "game_config.html", config=game_manager, registered=registered)
+        "game_config.html", config=game_manager, registered=registered)
     html = tornado.escape.to_basestring(html_str)
 
     return {
-            'message_type': 'config_update',
-            'html': html,
-            'registered': registered
-            }
+        'message_type': 'config_update',
+        'html': html,
+        'registered': registered
+    }
+
 
 def broadcast_start_game(handler, game_manager, sockets):
     # broadcast message to browser bia sockets
@@ -46,39 +51,42 @@ def broadcast_start_game(handler, game_manager, sockets):
         player.receive_game_start_message(game_info)
         player.set_uuid(uuid)
 
+
 def _gen_game_info(game_manager):
     seats = game_manager.latest_messages[0][1]["message"]["seats"]
-    copy_seats = [{k:v for k,v in player.items()} for player in seats]
+    copy_seats = [{k: v for k, v in player.items()} for player in seats]
     for player in copy_seats:
         player["stack"] = game_manager.rule["initial_stack"]
     player_num = len(seats)
-    rule = {k:v for k,v in game_manager.rule.items()}
+    rule = {k: v for k, v in game_manager.rule.items()}
     rule["small_blind_amount"] = rule.pop("small_blind")
     return {
-            "seats": copy_seats,
-            "player_num": player_num,
-            "rule": rule,
-            }
+        "seats": copy_seats,
+        "player_num": player_num,
+        "rule": rule,
+    }
+
 
 def _gen_start_game_message(handler, game_manager, uuid):
     registered = game_manager.get_human_player_info(uuid)
     html_str = handler.render_string(
-            "poker_game.html", config=game_manager, registered=registered)
+        "poker_game.html", config=game_manager, registered=registered)
     html = tornado.escape.to_basestring(html_str)
 
     return {
-            'message_type': 'start_game',
-            'html': html
-            }
+        'message_type': 'start_game',
+        'html': html
+    }
+
 
 def broadcast_update_game(handler, game_manager, sockets, mode="moderate"):
     for destination, update in game_manager.latest_messages:
         for uuid in _parse_destination(destination, game_manager, sockets):
             if ('hole_card' in update['message'].keys()):
-                    game_manager.record_hole_card(str(uuid), update['message']['hole_card'])
+                game_manager.record_hole_card(str(uuid), update['message']['hole_card'])
             if len(str(uuid)) <= 2:
                 # AI players
-                
+
                 ai_player = game_manager.ai_players[uuid]
                 _broadcast_message_to_ai(ai_player, update)
             else:
@@ -91,65 +99,68 @@ def broadcast_update_game(handler, game_manager, sockets, mode="moderate"):
                     logging.error("Error sending message", exc_info=True)
                 time.sleep(_calc_wait_interval(mode, update))
 
+
 def _parse_destination(destination, game_manager, sockets):
     if destination == -1:
         return [soc.uuid for soc in sockets] + list(game_manager.ai_players.keys())
     else:
         return [destination]
 
+
 def _find_socket_by_uuid(sockets, uuid):
     target = [sock for sock in sockets if sock.uuid == uuid]
     assert len(target) == 1
     return target[0]
 
+
 def _gen_game_update_message(handler, message, game_manager):
     message_type = message['message']['message_type']
     hole = False
-    if('hole_card' in message['message'].keys()):
+    if ('hole_card' in message['message'].keys()):
         hole = message['message']['hole_card']
         print(hole)
-        
+
     if 'round_start_message' == message_type:
         round_count = message['message']['round_count']
         hole_card = message['message']['hole_card']
         print(hole_card)
         event_html_str = handler.render_string("event_round_start.html",
-                round_count=round_count, hole_card=hole_card)
+                                               round_count=round_count, hole_card=hole_card)
         content = {
-                'update_type': message_type,
-                'event_html': tornado.escape.to_basestring(event_html_str)
-                }
+            'update_type': message_type,
+            'event_html': tornado.escape.to_basestring(event_html_str)
+        }
     elif 'street_start_message' == message_type:
         round_state = message['message']['round_state']
         street = message['message']['street']
         table_html_str = handler.render_string("round_state.html", round_state=round_state)
         event_html_str = handler.render_string("event_street_start.html", street=street)
         content = {
-                'update_type': message_type,
-                'table_html': tornado.escape.to_basestring(table_html_str),
-                'event_html': tornado.escape.to_basestring(event_html_str)
-                }
+            'update_type': message_type,
+            'table_html': tornado.escape.to_basestring(table_html_str),
+            'event_html': tornado.escape.to_basestring(event_html_str)
+        }
     elif 'game_update_message' == message_type:
         round_state = message['message']['round_state']
         action = message['message']['action']
         action_histories = message['message']['action_histories']
         table_html_str = handler.render_string("round_state.html", round_state=round_state)
         event_html_str = handler.render_string(
-                "event_update_game.html", action=action, round_state=round_state)
+            "event_update_game.html", action=action, round_state=round_state)
         content = {
-                'update_type': message_type,
-                'table_html': tornado.escape.to_basestring(table_html_str),
-                'event_html': tornado.escape.to_basestring(event_html_str)
-                }
+            'update_type': message_type,
+            'table_html': tornado.escape.to_basestring(table_html_str),
+            'event_html': tornado.escape.to_basestring(event_html_str)
+        }
     elif 'round_result_message' == message_type:
-        #print(repr(message['message'].items()))
+        # print(repr(message['message'].items()))
         # Here, add additional field to hand_info to indicate which card to display (suit, rank)
         # Append hand info to each winner
         hand_info = message['message']['hand_info']
         hand_out = []
         for hand in hand_info:
             print(hand['hand']['hand']['strength'])
-            if(hand['uuid'] in game_manager.hole_cards):
+            if (hand['uuid'] in game_manager.hole_cards):
                 hand['hand_cards'] = game_manager.hole_cards[hand['uuid']]
 
                 # Fix spelling errors
@@ -170,30 +181,31 @@ def _gen_game_update_message(handler, message, game_manager):
                 hand_out.append(hand)
             else:
                 print(f"UUID {hand['uuid']} does NOT exist in hole cards...")
-                raise(KeyError)
+                raise (KeyError)
         hand_info = hand_out
         print(hand_info)
         round_state = message['message']['round_state']
-        
+
         winners = message['message']['winners']
         round_count = message['message']['round_count']
         table_html_str = handler.render_string("round_state.html", round_state=round_state)
         event_html_str = handler.render_string("event_round_result.html",
-                round_state=round_state, hand_info=hand_info, winners=winners, round_count=round_count)
+                                               round_state=round_state, hand_info=hand_info, winners=winners,
+                                               round_count=round_count)
         content = {
-                'update_type': message_type,
-                'table_html': tornado.escape.to_basestring(table_html_str),
-                'event_html': tornado.escape.to_basestring(event_html_str)
-                }
+            'update_type': message_type,
+            'table_html': tornado.escape.to_basestring(table_html_str),
+            'event_html': tornado.escape.to_basestring(event_html_str)
+        }
         # Reset hands
         game_manager.reset_hole_record()
     elif 'game_result_message' == message_type:
         game_info = message['message']['game_information']
         event_html_str = handler.render_string("event_game_result.html", game_information=game_info)
         content = {
-                'update_type': message_type,
-                'event_html' : tornado.escape.to_basestring(event_html_str)
-                }
+            'update_type': message_type,
+            'event_html': tornado.escape.to_basestring(event_html_str)
+        }
     elif 'ask_message' == message_type:
         round_state = message['message']['round_state']
         hole_card = message['message']['hole_card']
@@ -201,25 +213,26 @@ def _gen_game_update_message(handler, message, game_manager):
         action_histories = message['message']['action_histories']
         table_html_str = handler.render_string("round_state.html", round_state=round_state)
         event_html_str = handler.render_string("event_ask_action.html",
-                hole_card=hole_card, valid_actions=valid_actions,
-                action_histories=action_histories)
+                                               hole_card=hole_card, valid_actions=valid_actions,
+                                               action_histories=action_histories)
         content = {
-                'update_type': message_type,
-                'table_html': tornado.escape.to_basestring(table_html_str),
-                'event_html': tornado.escape.to_basestring(event_html_str)
-                }
+            'update_type': message_type,
+            'table_html': tornado.escape.to_basestring(table_html_str),
+            'event_html': tornado.escape.to_basestring(event_html_str)
+        }
     else:
         raise Exception("Unexpected message received : %r" % message)
 
     return {
-            'message_type': 'update_game',
-            'content': content
-            }
+        'message_type': 'update_game',
+        'content': content
+    }
+
 
 def _broadcast_message_to_ai(ai_player, message):
     message_type = message['message']['message_type']
     hole = False
-    if('hole_card' in message['message'].keys()):
+    if ('hole_card' in message['message'].keys()):
         hole = message['message']['hole_card']
     if 'round_start_message' == message_type:
         round_count = message['message']['round_count']
@@ -248,6 +261,7 @@ def _broadcast_message_to_ai(ai_player, message):
     else:
         raise Exception("Unexpected message received : %r" % message)
 
+
 def _calc_wait_interval(mode, update):
     message_type = update["message"]["message_type"]
     if 'dev' == mode:
@@ -261,29 +275,30 @@ def _calc_wait_interval(mode, update):
     else:
         raise Exception("Unexpected mode received [ %s ]" % mode)
 
+
 SLOW_WAIT_INTERVAL = {
-        'round_start_message': 5,
-        'street_start_message': 4,
-        'ask_message': 0,
-        'game_update_message': 4,
-        'round_result_message': 10,
-        'game_result_message': 0
+    'round_start_message': 5,
+    'street_start_message': 4,
+    'ask_message': 0,
+    'game_update_message': 4,
+    'round_result_message': 10,
+    'game_result_message': 0
 }
 
 MODERATE_WAIT_INTERVAL = {
-        'round_start_message': 3,
-        'street_start_message': 2,
-        'ask_message': 0,
-        'game_update_message': 2,
-        'round_result_message': 10,
-        'game_result_message': 0
+    'round_start_message': 3,
+    'street_start_message': 2,
+    'ask_message': 0,
+    'game_update_message': 2,
+    'round_result_message': 10,
+    'game_result_message': 0
 }
 
 FAST_WAIT_INTERVAL = {
-        'round_start_message': 1,
-        'street_start_message': 0.5,
-        'ask_message': 0,
-        'game_update_message': 0.5,
-        'round_result_message': 15,
-        'game_result_message': 0
+    'round_start_message': 1,
+    'street_start_message': 0.5,
+    'ask_message': 0,
+    'game_update_message': 0.5,
+    'round_result_message': 15,
+    'game_result_message': 0
 }

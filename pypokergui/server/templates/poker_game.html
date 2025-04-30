@@ -1,61 +1,69 @@
 <div id="poker_game" class="row">
   <div id="table" class="col-md-6">
-    <h3>Loading...<h3>
+    <h3>Loading...</h3>
   </div>
   <div id="info_box" class="info-box img-rounded col-md-6">
-    <div id="event_box">
-    </div>
+    <div id="event_box"></div>
     <div id="input_box">
       <form action="/a/declare_action" method="post" id="declare_action_form">
         <div class="form-group">
           <fieldset class="form-group">
             <legend>Choose your action</legend>
-            <div class="form-check">
-              <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="action" id="r1" value="fold" checked> FOLD</input>
-              </label>
-            </div>
-            <div class="form-check">
-              <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="action" id="r1" value="call" checked> CALL</input>
-              </label>
-            </div>
-            <div class="form-check">
-              <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="action" id="r1" value="raise" checked> RAISE</input>
-              </label>
-            </div>
+            <select class="form-control" id="actionSelect" name="action" style="width:150px;">
+              <option value="fold">FOLD</option>
+              <option value="call">CALL</option>
+              <option value="raise">RAISE</option>
+            </select>
           </fieldset>
-          <div class="form-group">
-            <label for="raiseAmoutInput">Raise Amount</label>
-            <input type="text" class="form-control" name="amount" id="raiseAmoutInput" placeholder="Enter raise amount"
-                  style="width:150px">
+
+          <div id="raiseControls" style="display:none; margin-top:15px;">
+            <label for="raiseSlider">Raise Amount</label>
+            <input type="range" class="form-control-range" id="raiseSlider" min="1" max="1000" step="1" style="width:200px;">
+            <input type="text" class="form-control" name="amount" id="raiseAmountInput" placeholder="Enter raise amount" style="width:150px; margin-top:5px;">
           </div>
+
           <button type="submit" class="btn btn-primary">Declare action</button>
           <input type="hidden" name="next" value="{{ request.path }}">
           {% module xsrf_form_html() %}
         </div>
-        <!--
-        <table>
-          <tr>
-            <td>
-              <select name="action">
-                <option value="fold">FOLD</option>
-                <option value="call">CALL</option>
-                <option value="raise">RAISE</option>
-              </select>
-            </td>
-            <td><input name="amount"></td>
-            <td style="padding-left:5px">
-              <input type="submit" value="{{ _("declare action") }}"}}>
-              <input type="hidden" name="next" value="{{ request.path }}">
-              {% module xsrf_form_html() %}
-            </td>
-          </tr>
-        </table>
-        -->
       </form>
     </div>
-    <div></div> <!-- for creating space -->
+    <div></div>
   </div>
 </div>
+
+<script>
+  const userCash = 750;
+
+  const actionSelect = document.getElementById('actionSelect');
+  const raiseControls = document.getElementById('raiseControls');
+  const raiseSlider = document.getElementById('raiseSlider');
+  const raiseAmountInput = document.getElementById('raiseAmountInput');
+
+  // Set max value dynamically
+  raiseSlider.max = userCash;
+
+  actionSelect.addEventListener('change', function () {
+    if (this.value === 'raise') {
+      raiseControls.style.display = 'block';
+    } else {
+      raiseControls.style.display = 'none';
+      raiseAmountInput.value = '';
+    }
+  });
+
+  raiseSlider.addEventListener('input', function () {
+    raiseAmountInput.value = this.value;
+  });
+
+  raiseAmountInput.addEventListener('input', function () {
+    let val = parseInt(this.value);
+    if (!isNaN(val)) {
+      // Clamp to max
+      if (val > userCash) val = userCash;
+      if (val < 1) val = 1;
+      this.value = val;
+      raiseSlider.value = val;
+    }
+  });
+</script>

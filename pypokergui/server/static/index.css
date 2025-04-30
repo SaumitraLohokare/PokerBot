@@ -184,3 +184,13 @@
 
 .material-icons.md-light { color: rgba(255, 255, 255, 1); }
 .material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
+
+#game_controls {
+    margin: 20px 0;
+    text-align: center;
+}
+
+#pause_button {
+    min-width: 120px;
+    font-weight: bold;
+}
