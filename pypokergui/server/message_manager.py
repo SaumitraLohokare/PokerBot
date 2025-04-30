@@ -74,12 +74,17 @@ def _gen_start_game_message(handler, game_manager, uuid):
 def broadcast_update_game(handler, game_manager, sockets, mode="moderate"):
     for destination, update in game_manager.latest_messages:
         for uuid in _parse_destination(destination, game_manager, sockets):
+            if ('hole_card' in update['message'].keys()):
+                    game_manager.record_hole_card(str(uuid), update['message']['hole_card'])
             if len(str(uuid)) <= 2:
+                # AI players
+                
                 ai_player = game_manager.ai_players[uuid]
                 _broadcast_message_to_ai(ai_player, update)
             else:
+                # Human player
                 socket = _find_socket_by_uuid(sockets, uuid)
-                message = _gen_game_update_message(handler, update)
+                message = _gen_game_update_message(handler, update, game_manager)
                 try:
                     socket.write_message(message)
                 except:
@@ -97,11 +102,17 @@ def _find_socket_by_uuid(sockets, uuid):
     assert len(target) == 1
     return target[0]
 
-def _gen_game_update_message(handler, message):
+def _gen_game_update_message(handler, message, game_manager):
     message_type = message['message']['message_type']
+    hole = False
+    if('hole_card' in message['message'].keys()):
+        hole = message['message']['hole_card']
+        print(hole)
+        
     if 'round_start_message' == message_type:
         round_count = message['message']['round_count']
         hole_card = message['message']['hole_card']
+        print(hole_card)
         event_html_str = handler.render_string("event_round_start.html",
                 round_count=round_count, hole_card=hole_card)
         content = {
@@ -131,8 +142,39 @@ def _gen_game_update_message(handler, message):
                 'event_html': tornado.escape.to_basestring(event_html_str)
                 }
     elif 'round_result_message' == message_type:
-        round_state = message['message']['round_state']
+        #print(repr(message['message'].items()))
+        # Here, add additional field to hand_info to indicate which card to display (suit, rank)
+        # Append hand info to each winner
         hand_info = message['message']['hand_info']
+        hand_out = []
+        for hand in hand_info:
+            print(hand['hand']['hand']['strength'])
+            if(hand['uuid'] in game_manager.hole_cards):
+                hand['hand_cards'] = game_manager.hole_cards[hand['uuid']]
+
+                # Fix spelling errors
+                if (hand['hand']['hand']['strength'] == 'FLASH'):
+                    hand['hand']['hand']['strength'] = 'FLUSH'
+
+                if (hand['hand']['hand']['strength'] == 'THREECARD'):
+                    hand['hand']['hand']['strength'] = 'THREE OF A KIND'
+
+                if (hand['hand']['hand']['strength'] == 'ONEPAIR'):
+                    hand['hand']['hand']['strength'] = 'PAIR'
+
+                if (hand['hand']['hand']['strength'] == 'TWOPAIR'):
+                    hand['hand']['hand']['strength'] = 'TWO PAIR'
+
+                if (hand['hand']['hand']['strength'] == 'HIGHCARD'):
+                    hand['hand']['hand']['strength'] = 'HIGH CARD'
+                hand_out.append(hand)
+            else:
+                print(f"UUID {hand['uuid']} does NOT exist in hole cards...")
+                raise(KeyError)
+        hand_info = hand_out
+        print(hand_info)
+        round_state = message['message']['round_state']
+        
         winners = message['message']['winners']
         round_count = message['message']['round_count']
         table_html_str = handler.render_string("round_state.html", round_state=round_state)
@@ -143,6 +185,8 @@ def _gen_game_update_message(handler, message):
                 'table_html': tornado.escape.to_basestring(table_html_str),
                 'event_html': tornado.escape.to_basestring(event_html_str)
                 }
+        # Reset hands
+        game_manager.reset_hole_record()
     elif 'game_result_message' == message_type:
         game_info = message['message']['game_information']
         event_html_str = handler.render_string("event_game_result.html", game_information=game_info)
@@ -174,6 +218,9 @@ def _gen_game_update_message(handler, message):
 
 def _broadcast_message_to_ai(ai_player, message):
     message_type = message['message']['message_type']
+    hole = False
+    if('hole_card' in message['message'].keys()):
+        hole = message['message']['hole_card']
     if 'round_start_message' == message_type:
         round_count = message['message']['round_count']
         hole_card = message['message']['hole_card']
@@ -191,6 +238,8 @@ def _broadcast_message_to_ai(ai_player, message):
         winners = message['message']['winners']
         round_state = message['message']['round_state']
         hand_info = message['message']['hand_info']
+        if (hole):
+            print(hole)
         ai_player.receive_round_result_message(winners, hand_info, round_state)
     elif 'game_result_message' == message_type:
         pass  # ai does not handle game result
@@ -235,6 +284,6 @@ FAST_WAIT_INTERVAL = {
         'street_start_message': 0.5,
         'ask_message': 0,
         'game_update_message': 0.5,
-        'round_result_message': 3,
+        'round_result_message': 15,
         'game_result_message': 0
 }

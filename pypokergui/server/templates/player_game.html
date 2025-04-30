@@ -7,8 +7,8 @@
   <div>
     <span class="round-state-table-text player-name">{{player["name"]}}</span></br>
     <span class="round-state-table-text player-stack">${{player["stack"]}}</span></br>
-    {% if round_state["dealer_btn"]==idx %}
-      <span class="label label-warning">D</span>
+    {% if round_state["dealer_btn"]==int(player['uuid']) %}
+      <span class="label label-warning">Dealer</span>
     {% end %}
     <!--
     {% if round_state["next_player"]==idx %}

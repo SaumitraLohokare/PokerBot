@@ -131,6 +131,7 @@ var updater = {
         content = message['content']
         window.console.log("updateGame: " + JSON.stringify(content))
         message_type = content['update_type']
+        window.console.log("event html : " + JSON.stringify(content.event_html))
         if ('round_start_message' == message_type) {
           updater.roundStart(content.event_html)
         } else if ('street_start_message' == message_type) {
