@@ -1,13 +1,16 @@
 import random
 from pypokerengine.players import BasePokerPlayer
 
+# Notes
+# All cards follow this format: Suit + Rank : 4 of Hearts = 4H, 10 of Spades = ST [2,3,4,5,6,7,8,9,T,J,Q,K,A] [S,C,D,H]
+
 class RandomPlayer(BasePokerPlayer):  # Do not forget to make parent class as "BasePokerPlayer"
 
     #  we define the logic to make an action through this method. (so this method would be the core of your AI)
     def declare_action(self, valid_actions, hole_card, round_state):
         # for your convenience:
-        community_card = round_state['community_card']
-        street = round_state['street']
+        community_card = round_state['community_card']                  # array, starting from [] to [] of 5 elems
+        street = round_state['street']                                  # preflop, flop, turn, river
         pot = round_state['pot']                                        # dict : {'main': {'amount': int}, 'side': {'amount': int}}
         dealer_btn = round_state['dealer_btn']                          # int : user id of the player acting as the dealer
         next_player = round_state['next_player']                        # int : user id of next player
@@ -25,7 +28,7 @@ class RandomPlayer(BasePokerPlayer):  # Do not forget to make parent class as "B
 
         #print(community_card, street, pot, dealer_btn, next_player, small_blind_pos, big_blind_pos,
         #      round_count, small_blind_amount, seats, action_histories)
-
+        print(community_card)
         # valid_actions format => [raise_action_info, call_action_info, fold_action_info]
         # [{'action': 'fold', 'amount': 0}, {'action': 'call', 'amount': 20}, {'action': 'raise', 'amount': {'min': 30, 'max': 100}}]
         action = random.choice(valid_actions)["action"]
@@ -36,9 +39,12 @@ class RandomPlayer(BasePokerPlayer):  # Do not forget to make parent class as "B
         if action == "call":
             return self.do_call(valid_actions)
         if action == "fold":
-            return self.do_fold(valid_actions)
+            return self.do_call(valid_actions)
         return self.do_raise(valid_actions, amount)   # action returned here is sent to the poker engine
 
+
+    # Helper functions
+    
     def do_fold(self, valid_actions):
         action_info = valid_actions[0]
         amount = action_info["amount"]
@@ -50,7 +56,7 @@ class RandomPlayer(BasePokerPlayer):  # Do not forget to make parent class as "B
         return action_info['action'], amount
     
     def do_raise(self,  valid_actions, raise_amount):
-        action_info = valid_actions[1]
+        action_info = valid_actions[2]
         amount = max(action_info['amount']['min'], raise_amount)
         return action_info['action'], amount
 
