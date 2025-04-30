@@ -2,40 +2,58 @@
 
 import os
 import sys
+import argparse
+import webbrowser
+import yaml
 
-# Resolve path configuration
+# Path setup
 root = os.path.join(os.path.dirname(__file__), "..")
 src = os.path.join(root, "pypokergui")
 sys.path.append(root)
 sys.path.append(src)
 
-import click
-import webbrowser
-
 from pypokergui.server.poker import start_server
 from pypokergui.config_builder import build_config
 
-@click.group()
-def cli():
-    pass
-
-@cli.command(name="serve")
-@click.argument("config")
-@click.option("--port", default=8000, help="port to run server")
-@click.option("--speed", default="moderate", type=click.Choice(["moderate", "fast"]), help="how fast game progress")
-def serve_command(config, port, speed):
+def serve(config_path, port, speed):
     host = "localhost"
-    webbrowser.open("http://%s:%s" % (host, port))
-    start_server(config, port, speed)
 
-@cli.command(name="build_config")
-@click.option("-r", "--maxround", default=10, help="final round of the game")
-@click.option("-s", "--stack", default=100, help="start stack of player")
-@click.option("-b", "--small_blind", default=5, help="amount of small blind")
-@click.option("-a", "--ante", default=0, help="amount of ante")
-def build_config_command(maxround, stack, small_blind, ante):
-    build_config(maxround, stack, small_blind, ante, None)
+    # Open browser
+    webbrowser.open(f"http://{host}:{port}")
 
+    # Load YAML config
+    with open(config_path, "r", encoding="utf-8", errors="ignore") as f:
+        raw_data = f.read()
+        clean_data = raw_data.replace("\x00", "")  # null characters in string form
+        config = yaml.safe_load(clean_data)
 
-if __name__ == '__main__':
-    cli()
+    start_server(config_path, port, speed)
+
+def main():
+    parser = argparse.ArgumentParser(description="PyPokerGUI CLI (no click)")
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # Serve command
+    serve_parser = subparsers.add_parser("serve", help="Run the poker GUI server")
+    serve_parser.add_argument("config", help="Path to config YAML file")
+    serve_parser.add_argument("--port", type=int, default=8000, help="Port to run server on")
+    serve_parser.add_argument("--speed", choices=["dev", "slow", "moderate", "fast"], default="moderate", help="Game speed")
+
+    # Build config command
+    build_parser = subparsers.add_parser("build_config", help="Build a new poker config YAML")
+    build_parser.add_argument("-r", "--maxround", type=int, default=10, help="Final round of the game")
+    build_parser.add_argument("-s", "--stack", type=int, default=100, help="Starting stack for each player")
+    build_parser.add_argument("-b", "--small_blind", type=int, default=5, help="Small blind amount")
+    build_parser.add_argument("-a", "--ante", type=int, default=0, help="Ante amount")
+
+    args = parser.parse_args()
+
+    if args.command == "serve":
+        serve(args.config, args.port, args.speed)
+    elif args.command == "build_config":
+        build_config(args.maxround, args.stack, args.small_blind, args.ante, None)
+    else:
+        parser.print_help()
+
+if __name__ == "__main__":
+    main()

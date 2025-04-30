@@ -212,12 +212,12 @@ def _calc_wait_interval(mode, update):
     else:
         raise Exception("Unexpected mode received [ %s ]" % mode)
 
-SLOW_WAIT_INTERVAL = {  # TODO
-        'round_start_message': 0,
-        'street_start_message': 0,
+SLOW_WAIT_INTERVAL = {
+        'round_start_message': 5,
+        'street_start_message': 4,
         'ask_message': 0,
-        'game_update_message': 0,
-        'round_result_message': 0,
+        'game_update_message': 4,
+        'round_result_message': 10,
         'game_result_message': 0
 }
 

@@ -133,3 +133,32 @@ Please register yourself in the page and start the game. Enjoy poker!!
 ### How to declare action in the game
 <img src="https://github.com/ishikota/PyPokerGUI/blob/master/screenshot/poker_game.png" width=600px/>
 
+
+
+# New from here on out
+
+
+### Running the Poker Game Server
+
+1. Open this repository in GitHub Codespaces
+2. Open a terminal in VS Code (Terminal → New Terminal)
+3. Run the server with a simple command:
+   ```
+   ./start-poker.sh
+   ```
+4. The poker server will start at port 8000
+5. Click on the "Ports" tab at the bottom of VS Code and click the globe icon next to port 8000 to open the application in your browser
+
+### What's happening behind the scenes?
+
+The startup script runs the following command:
+```
+python -m pypokergui serve ./poker_conf.yaml --port 8000 --speed slow
+```
+
+If you need to modify server settings, you can edit the `poker_conf.yaml` file or update the parameters in `start-poker.sh`.
+
+
+If running on local machine, run python -m pypokergui serve ./poker_conf.yaml --port 8000 --speed slow
+Change the 8000 to a different port (eg 8100) if there is a port error
+--speed [slow/moderate/fast/dev]

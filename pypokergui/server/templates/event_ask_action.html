@@ -3,10 +3,14 @@
 {% block event_title %}Declare Your Action{% end %}
 
 {% block event_content %}
+{% set suit_map = {"S": "spade", "H": "heart", "D": "diamond", "C": "club"} %}
 <div id="ask_action">
   <h3>Hole Card : {{hole_card}}</h3>
   {% for card in hole_card %}
-    <img class="card" src="{{ static_url("images/card_%s.png" % card) }}" >
+    {% set suit = card[0] %}
+    {% set rank = card[1:] %}
+    {% set folder = suit_map[suit] %}
+    <img class="card" src="{{ static_url("images/" + folder + "/" + rank + ".png") }}">
   {% end %}
   <h3>Valid Actions</h3>
   <ul class="list-group">

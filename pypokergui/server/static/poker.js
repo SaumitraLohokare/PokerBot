@@ -5,14 +5,16 @@ $(document).ready(function() {
     if (!window.console) window.console = {};
     if (!window.console.log) window.console.log = function() {};
 
-    $("#registration_form").on("submit", function() {
+    $("#registration_form").on("submit", function(e) {
+        e.preventDefault();
         registerPlayer($(this));
-        return false;
     });
-    $("#start_game_form").on("submit", function() {
-        startGame()
-        return false;
+    
+    $("#start_game_form").on("submit", function(e) {
+        e.preventDefault();
+        startGame();
     });
+  
     updater.start();
 });
 
@@ -73,7 +75,9 @@ var updater = {
      *  URL would be "ws://localhost/pokersocket:8888".
      */
     start: function() {
-        var url = "ws://" + location.host + "/pokersocket";
+        var scheme = location.protocol === "https:" ? "wss://" : "ws://";
+        var url = scheme + location.host + "/pokersocket";
+        console.log("Connecting to WebSocket at: " + url);
         updater.socket = new WebSocket(url);
         updater.socket.onmessage = function(event) {
             window.console.log("received new message: " + event.data)

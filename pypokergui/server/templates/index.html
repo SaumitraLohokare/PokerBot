@@ -3,18 +3,21 @@
     <head>
         <meta charset="UTF-8">
         <title>PyPokerGUI</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
       </head>
       <body>
         <!-- FIXME displaying all images once is necessarry to display image in "round_state" -->
-        {% for suit in ["S", "D", "H", "C"] %}
+        {% for suit in [("S", "spade"), ("D", "diamond"), ("H", "heart"), ("C", "club")] %}
+          {% set short = suit[0] %}
+          {% set name = suit[1] %}
           {% for rank in ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"] %}
-            <img style="display:none" src="{{ static_url("images/card_%s%s.png" % (suit, rank)) }}" >
-          {% end %}
+             <img style="display:none" src="{{ static_url("images/" + name + "/" + rank + ".png") }}">
+            {% end %}
         {% end %}
         <img style="display:none" src="{{ static_url("images/poker_pot.png") }}" >
         {% include "navbar.html" %}
         <div id="container" class="container">
-          {% include "waiting_room.html %}
+          {% include "waiting_room.html" %}
         </div>
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
