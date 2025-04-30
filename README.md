@@ -1,164 +1,127 @@
-# PyPokerGUI
+# PokerHack by HackMelbourne
 
-[![Build Status](https://travis-ci.org/ishikota/PyPokerGUI.svg?branch=master)](https://travis-ci.org/ishikota/PyPokerGUI)
-[![PyPI](https://img.shields.io/pypi/v/PyPokerGUI.svg?maxAge=2592000)](https://badge.fury.io/py/PyPokerGUI)
-[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/ishikota/PyPokerGUI/blob/master/LICENSE.md)
+Welcome to the PokerHack repository!
+You will be working primarily in this repository for your submission to PokerHack
 
-GUI application for [PyPokerEngine](https://github.com/ishikota/PyPokerEngine).  
-You can play poker with your AI bia browser.
+## What you need to do:
+- Edit the "mybot.py" file in submission/mybot.py
+- Rename the file and class to your team name
+- For example, rename the file to "Team-Bots.py
+  ```python
+  def setup_ai():
+    return MyBot()
 
-![app_demo](https://github.com/ishikota/PyPokerGUI/blob/master/screenshot/poker_demo.gif)
+    class MyBot(BasePokerPlayer):  # Do not forget to make parent class as "BasePokerPlayer"
 
-This library assumes that your AI is implemented in [PyPokerEngine](https://github.com/ishikota/PyPokerEngine) format.  
-If you have not checked our [PyPokerEngine](https://github.com/ishikota/PyPokerEngine), we recommend you to check it first.
+        #  we define the logic to make an action through this method. (so this method would be the core of your AI)
+        def declare_action(self, valid_actions, hole_card, round_state):
+  ```
+  should now be
 
-- [README tutorial](https://github.com/ishikota/PyPokerEngine)
-- [doc site for PyPokerEngine](https://ishikota.github.io/PyPokerEngine/)
+  ```python
+  def setup_ai():
+    return Team-Bots()
 
-# Tutorial
-In this tutorial, we will play poker with simple AI "*FishPlayer*".  
-("*FishPlayer*" is an AI always declares CALL action. )
+    class Team-Bots(BasePokerPlayer):  # Do not forget to make parent class as "BasePokerPlayer"
 
-The outline of this tutorial is following.
-
-1. Create script to setup our AI
-2. Setup config file which defines rule of the game
-3. Start the server with config file and play the game
-
-## Installation
-Please install this library with pip.
-
-```bash
-pip install pypokergui
-```
-
-## Create script to setup our AI
-First, we will create a script which defines how to setup our AI.  
-What you need to do is implementing `setup_ai` method.    
-PyPokerGUI uses this method to setup your AI.
-
-```python
-from pypokerengine.players import BasePokerPlayer
-
-class FishPlayer(BasePokerPlayer):  # Do not forget to make parent class as "BasePokerPlayer"
+        #  we define the logic to make an action through this method. (so this method would be the core of your AI)
+        def declare_action(self, valid_actions, hole_card, round_state):
+  ```
+- Start coding!
+- Most of your bot logic should go in the "declare_action" function
+  ```python
+    class MyBot(BasePokerPlayer):  # Do not forget to make parent class as "BasePokerPlayer"
 
     #  we define the logic to make an action through this method. (so this method would be the core of your AI)
     def declare_action(self, valid_actions, hole_card, round_state):
+        # for your convenience:
+        community_card = round_state['community_card']                  
+        street = round_state['street']                                  
+        pot = round_state['pot']                                        
+        dealer_btn = round_state['dealer_btn']                          
+        next_player = round_state['next_player']                        
+        small_blind_pos = round_state['small_blind_pos']                
+        big_blind_pos = round_state['big_blind_pos']                    
+        round_count = round_state['round_count']                        
+        small_blind_amount = round_state['small_blind_amount']          
+        seats = round_state['seats']                                    
+        action_histories = round_state['action_histories']             
+
         # valid_actions format => [raise_action_info, call_action_info, fold_action_info]
-        call_action_info = valid_actions[1]
-        action, amount = call_action_info["action"], call_action_info["amount"]
-        return action, amount   # action returned here is sent to the poker engine
+        action = random.choice(valid_actions)["action"]
+        if action == "raise":
+            action_info = valid_actions[2]
+            amount = random.randint(action_info["amount"]["min"], action_info["amount"]["max"])
+            if amount == -1: action = "call"
+        if action == "call":
+            return self.do_call(valid_actions)
+        if action == "fold":
+            return self.do_call(valid_actions)
+        return self.do_raise(valid_actions, amount)   # action returned here is sent to the poker engine
 
-    def receive_game_start_message(self, game_info):
-        pass
+  ```
+## Setting up your environment
+First, make sure to fork this repository, or download the repository as a .zip file and create a new GitHub repo from it.
+You can use GitHub codespaces instead of running the code locally on your machine. Doing this means that you don't have to download dependencies on your machine.
 
-    def receive_round_start_message(self, round_count, hole_card, seats):
-        pass
+### How to use GitHub codespaces
+Starting from your GitHub repository on a browser
+- Click on the green "Code" button
+- Click on the "Codespaces" tab
+- Create a new Codespace by pressing the + button
+- GitHub will automatically create and setup your codespace. If this takes too long ( > 3 mins), try reloading the page
+- You can now code, run files and commit changes within the online environment
 
-    def receive_street_start_message(self, street, round_state):
-        pass
-
-    def receive_game_update_message(self, action, round_state):
-        pass
-
-    def receive_round_result_message(self, winners, hand_info, round_state):
-        pass
-
-
-def setup_ai():
-    return FishPlayer()
-```
-
-We assume that you put this script on `/Users/ishikota/poker/fish_player_setup.py` in following section.
-
-## Setup config file which defines rule of the game
-Next we will define the rule of the game.  
-We need to define following settings in yaml format.
-
-- **max_round** : how many round we will play
-- **initial stack** : start stack size of each player
-- **small blind** : the amount of small blind
-- **ante** : the amount of ante
-- **ai_players** : path to your AI-setup script
-
-You can generate template of config file like this.
-
+Before you can run the code, run
 ```bash
-pypokergui build_config --maxround 10 --stack 100 --small_blind 10 --ante 0 >> poker_conf.yaml
+pip install -r requirements.txt
 ```
 
-Then your `poker_conf.yaml` would be ...
-
+## Testing 
+To see how your bot plays against other bots:
+- Register your bot in poker_conf.yaml:
 ```yaml
+ai_players:
+  - name: Fish1
+    path: sample_player/fish_player_setup.py
+  - name: Fish2
+    path: sample_player/fish_player_setup.py
+  - name: Fish3
+    path: sample_player/random_player_setup.py
+  - name: Team-Bots
+    path: submission/Team-Bots.py
 ante: 0
 blind_structure: null
 initial_stack: 100
 max_round: 10
 small_blind: 10
-ai_players:
-- name: FIXME:your-ai-name
-  path: FIXME:your-setup-script-path
 ```
+In this code block, your bot is the fourth player
+The other players codes are in the sample_player folder (you do not need to work in this folder)
+You can also play around with different ante's, initial stacks, max number of rounds and the small blind
 
-We replace `ai_players` items like this.
-
-```yaml
-ante: 0
-blind_structure: null
-initial_stack: 100
-max_round: 10
-small_blind: 10
-ai_players:
-- name: fish_player_1
-  path: /Users/ishikota/poker/fish_player_setup.py
-- name: fish_player_2
-  path: /Users/ishikota/poker/fish_player_setup.py
-```
-
-We assume that you put this file on `/Users/ishikota/poker/poker_conf.yaml` in following section.
-
-## Start the server with config file and play the game
-Ok, everything is ready. We start the local server with our config file.
-
+Then, start the server
+If using a GitHub codespace, open the terminal and run 
 ```bash
-pypokergui serve /Users/ishikota/poker/poker_conf.yaml --port 8000 --speed moderate
+./start-poker.sh
 ```
-
-Then browser will be opened and you would see registration page.  
-Please register yourself in the page and start the game. Enjoy poker!!
-
-### How to registrate yourself
-<img src="https://github.com/ishikota/PyPokerGUI/blob/master/screenshot/poker_registration.png" width=600px/>
-
-### How to declare action in the game
-<img src="https://github.com/ishikota/PyPokerGUI/blob/master/screenshot/poker_game.png" width=600px/>
-
-
-
-# New from here on out
-
-
-### Running the Poker Game Server
-
-1. Open this repository in GitHub Codespaces
-2. Open a terminal in VS Code (Terminal → New Terminal)
-3. Run the server with a simple command:
-   ```
-   ./start-poker.sh
-   ```
-4. The poker server will start at port 8000
-5. Click on the "Ports" tab at the bottom of VS Code and click the globe icon next to port 8000 to open the application in your browser
-
-### What's happening behind the scenes?
-
-The startup script runs the following command:
+If running locally on your computer, run
+```bash
+python -m pypokergui serve ./poker_conf.yaml --port 8000 --speed moderate
 ```
-python -m pypokergui serve ./poker_conf.yaml --port 8000 --speed slow
-```
+You can also use "slow" or "fast"
+- Their game event speeds are defined in pypokergui/message_manager/py from line 279 onwards
 
-If you need to modify server settings, you can edit the `poker_conf.yaml` file or update the parameters in `start-poker.sh`.
+A new browser tab should open
+Then you can click on Start Poker to start the simulation
+Alternatively, you can also register yourself as a player to play against the AI players
+
+If a port error shows up, such as "OSError: [WinError 10048] Only one usage of each socket address (protocol/network address/port) is normally permitted"
+- Rerun the bash command but with a different port (such as 8001)
+
+To close the server, go to the terminal and input Ctrl+C
+
+## Code of Conduct, Error resolution, contacts, credits
 
 
-If running on local machine, run python -m pypokergui serve ./poker_conf.yaml --port 8000 --speed moderate
-Change the 8000 to a different port (eg 8100) if there is a port error
---speed [slow/moderate/fast/dev]
+
