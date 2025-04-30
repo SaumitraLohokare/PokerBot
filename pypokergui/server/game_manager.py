@@ -107,4 +107,3 @@ def _gen_base_player_info(player_type, name, uuid):
             "uuid": uuid
             }
 
-

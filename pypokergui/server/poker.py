@@ -1,6 +1,7 @@
 import os
 import sys
-root = os.path.join(os.path.dirname(__file__), "../"*2)
+
+root = os.path.join(os.path.dirname(__file__), "../" * 2)
 src_path = os.path.join(root, "pypokergui")
 sys.path.append(root)
 sys.path.append(src_path)
@@ -22,12 +23,13 @@ define("port", default=8888, help="run on the given port", type=int)
 define("config", default=None, help="path to game config", type=str)
 define("speed", default="moderate", help="how fast game progress", type=str)
 
+
 class Application(tornado.web.Application):
 
     def __init__(self):
         handlers = [
-                (r"/", PokerRequestHandler),
-                (r"/pokersocket", PokerWebSocketHandler),
+            (r"/", PokerRequestHandler),
+            (r"/pokersocket", PokerWebSocketHandler),
         ]
         settings = dict(
             cookie_secret="__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
@@ -37,13 +39,14 @@ class Application(tornado.web.Application):
         )
         super(Application, self).__init__(handlers, debug=True, **settings)
 
+
 class PokerRequestHandler(tornado.web.RequestHandler):
 
     def get(self):
         self.render("index.html", config=global_game_manager, registered=False)
 
-class PokerWebSocketHandler(tornado.websocket.WebSocketHandler):
 
+class PokerWebSocketHandler(tornado.websocket.WebSocketHandler):
     sockets = set()
 
     def get_compression_options(self):
@@ -59,10 +62,9 @@ class PokerWebSocketHandler(tornado.websocket.WebSocketHandler):
         if global_game_manager.get_human_player_info(self.uuid):
             global_game_manager.remove_human_player_info(self.uuid)
             MM.broadcast_config_update(self, global_game_manager, self.sockets)
-    
+
     def on_connection_close(self):
         print(f"Connection closed: {self.uuid}")
-
 
     def on_message(self, message):
         js = tornado.escape.json_decode(message)
@@ -116,7 +118,7 @@ class PokerWebSocketHandler(tornado.websocket.WebSocketHandler):
         while self._is_next_player_ai(global_game_manager):
             if GM.has_game_finished(global_game_manager.latest_messages): break
             action, amount = global_game_manager.ask_action_to_ai_player(
-                    global_game_manager.next_player_uuid)
+                global_game_manager.next_player_uuid)
             global_game_manager.update_game(action, amount)
             MM.broadcast_update_game(self, global_game_manager, self.sockets, MODE_SPEED)
 
@@ -124,16 +126,19 @@ class PokerWebSocketHandler(tornado.websocket.WebSocketHandler):
         uuid = game_manager.next_player_uuid
         return uuid and len(uuid) <= 2
 
+
 MODE_SPEED = "moderate"
 global_game_manager = GM.GameManager()
 
+
 def setup_config(config):
     global_game_manager.define_rule(
-            config['max_round'], config['initial_stack'], config['small_blind'],
-            config['ante'], config['blind_structure']
+        config['max_round'], config['initial_stack'], config['small_blind'],
+        config['ante'], config['blind_structure']
     )
     for player in config['ai_players']:
         global_game_manager.join_ai_player(player['name'], player['path'])
+
 
 def start_server(config_path, port, speed):
     global MODE_SPEED
@@ -146,10 +151,11 @@ def start_server(config_path, port, speed):
     app.listen(port)
     tornado.ioloop.IOLoop.current().start()
 
+
 def main():
     tornado.options.parse_command_line()
     start_server(options.config, options.port, options.speed)
 
+
 if __name__ == '__main__':
     main()
-
