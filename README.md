@@ -121,7 +121,9 @@ If a port error shows up, such as "OSError: [WinError 10048] Only one usage of e
 
 To close the server, go to the terminal and input Ctrl+C
 
-## Code of Conduct, Error resolution, contacts, credits
+Additional resources:
 
+PyPokerEngine resources : https://ishikota.github.io/PyPokerEngine/
+How to play poker : https://www.youtube.com/watch?v=CpSewSHZhmo
 
 
