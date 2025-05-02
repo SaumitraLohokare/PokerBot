@@ -28,6 +28,13 @@ class MyBot(BasePokerPlayer):  # Do not forget to make parent class as "BasePoke
                                                                         #   {'action': 'CALL', 'amount': 20, 'paid': 10, 'uuid': '1'}, {'action': 'FOLD', 'uuid': '2'}]}   -- sample action history for preflop
                                                                         # {'flop': [{'action': 'CALL', 'amount': 0, 'paid': 0, 'uuid': '1'}]}  -- sample for flop
 
+        # Minimum and maximum raise values (max raise ==> all in)
+        min_raise = valid_actions[2]['amount']['min']
+        max_raise = valid_actions[2]['amount']['max']
+
+
+        # --------------------------------------------------------------------------------------------------------#
+        
         # Sample code: feel free to rewrite
         action = random.choice(valid_actions)["action"]
         if action == "raise":
@@ -40,12 +47,14 @@ class MyBot(BasePokerPlayer):  # Do not forget to make parent class as "BasePoke
             return self.do_fold(valid_actions)
         return self.do_raise(valid_actions, amount)   # action returned here is sent to the poker engine
     
+        # -------------------------------------------------------------------------------------------------------#
         # Make sure that you call one of the actions (self.do_fold, self.do_call, self.do_raise, self.do_all_in)
         # All in is defined as raise using all of your remaining stack (chips)
 
 
+
     def receive_game_start_message(self, game_info):
-        # Predefined variables for various game information
+        # Predefined variables for various game information --  feel free to use them however you like
         player_num = game_info["player_num"]
         max_round = game_info["rule"]["max_round"]
         small_blind_amount = game_info["rule"]["small_blind_amount"]
@@ -64,7 +73,8 @@ class MyBot(BasePokerPlayer):  # Do not forget to make parent class as "BasePoke
     def receive_round_result_message(self, winners, hand_info, round_state):
         pass
 
-    # Helper functions
+
+    # Helper functions  -- call these in the declare_action function to declare your move
     def do_fold(self, valid_actions):
         action_info = valid_actions[0]
         amount = action_info["amount"]

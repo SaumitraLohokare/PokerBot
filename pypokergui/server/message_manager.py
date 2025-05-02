@@ -118,12 +118,10 @@ def _gen_game_update_message(handler, message, game_manager):
     hole = False
     if ('hole_card' in message['message'].keys()):
         hole = message['message']['hole_card']
-        print(hole)
 
     if 'round_start_message' == message_type:
         round_count = message['message']['round_count']
         hole_card = message['message']['hole_card']
-        print(hole_card)
         event_html_str = handler.render_string("event_round_start.html",
                                                round_count=round_count, hole_card=hole_card)
         content = {
@@ -159,7 +157,6 @@ def _gen_game_update_message(handler, message, game_manager):
         hand_info = message['message']['hand_info']
         hand_out = []
         for hand in hand_info:
-            print(hand['hand']['hand']['strength'])
             if (hand['uuid'] in game_manager.hole_cards):
                 hand['hand_cards'] = game_manager.hole_cards[hand['uuid']]
 
@@ -183,7 +180,6 @@ def _gen_game_update_message(handler, message, game_manager):
                 print(f"UUID {hand['uuid']} does NOT exist in hole cards...")
                 raise (KeyError)
         hand_info = hand_out
-        print(hand_info)
         round_state = message['message']['round_state']
 
         winners = message['message']['winners']
@@ -286,9 +282,9 @@ SLOW_WAIT_INTERVAL = {
 }
 
 MODERATE_WAIT_INTERVAL = {
-    'round_start_message': 3,
-    'street_start_message': 2,
-    'ask_message': 0,
+    'round_start_message': 6,
+    'street_start_message': 6,
+    'ask_message': 2,
     'game_update_message': 2,
     'round_result_message': 10,
     'game_result_message': 0
